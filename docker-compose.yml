@@ -26,6 +26,7 @@ services:
     image: postgres:13-alpine
     volumes:
       - dev-db-data:/var/lib/postgresql/data
+      - dev-static-data:/vol/web
     environment:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
@@ -33,3 +34,4 @@ services:
 
 volumes:
   dev-db-data:
+  dev-static-data:
