@@ -381,6 +381,25 @@ class PrivateRecipeAPITests(TestCase):
         self.assertNotEqual(recipe.created_at, new_created_at)
         self.assertEqual(recipe.created_at, original_created_at)
 
+    def test_order_by_created_at(self):
+        'test about ordering'
+        recipe1 = create_recipe(user = self.user)
+        recipe2 = create_recipe(user = self.user)
+
+        recipes1 = Recipe.objects.all().order_by('-created_at')
+        recipes2 = Recipe.objects.all()
+        self.assertNotEqual(recipes1, recipes2)
+
+    def test_filter_by_created_at(self):
+        recipe = create_recipe(user = self.user, created_at = "2023-01-16T22:44:35.334860+03:00")
+        recipe2 = create_recipe(user = self.user)
+        created_at_date = recipe.created_at
+        res = self.client.get(RECIPES_URL, {'created_at': created_at_date})
+        filtered_recipes = Recipe.objects.filter(created_at=created_at_date)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), filtered_recipes.count())
+
+
 class ImageUploadTests(TestCase):
     def setUp(self):
         self.client = APIClient()
