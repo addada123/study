@@ -97,7 +97,6 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
 
-
     def test_get_recipe_detail(self):
         recipe = create_recipe(user= self.user)
         url = detail_url(recipe.id)
@@ -243,7 +242,6 @@ class PrivateRecipeAPITests(TestCase):
 
     def test_create_tag_on_update(self):
         recipe = create_recipe(user=self.user)
-
         payload = {'tags': [{'name': 'Lunch'}]}
         url = detail_url(recipe.id)
         res = self.client.patch(url, payload, format='json')

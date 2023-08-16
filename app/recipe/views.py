@@ -35,11 +35,13 @@ from recipe import serializers
                 'limit',
                 OpenApiTypes.INT,
                 description='Number of items per page.',
+                required=False
             ),
             OpenApiParameter(
                 'offset',
                 OpenApiTypes.INT,
                 description='Starting index for pagination.',
+                required=False
             ),
         ]
     )
@@ -84,11 +86,13 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                 'limit',
                 OpenApiTypes.INT,
                 description='Number of items per page.',
+                required=False
             ),
             OpenApiParameter(
                 'offset',
                 OpenApiTypes.INT,
                 description='Starting index for pagination.',
+                required=False
             ),
         ]
     )
@@ -99,7 +103,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    pagination_class = LimitOffsetPagination
 
     def _params_to_ints(self, qs):
         return [int(str_id) for str_id in qs.split(',')]
