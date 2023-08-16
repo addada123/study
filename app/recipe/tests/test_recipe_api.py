@@ -391,6 +391,7 @@ class PrivateRecipeAPITests(TestCase):
         self.assertNotEqual(recipes1, recipes2)
 
     def test_filter_by_created_at(self):
+        'test to filter by create_at field'
         recipe = create_recipe(user = self.user, created_at = "2023-01-16T22:44:35.334860+03:00")
         recipe2 = create_recipe(user = self.user)
         created_at_date = recipe.created_at
@@ -399,6 +400,16 @@ class PrivateRecipeAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), filtered_recipes.count())
 
+    def test_query_by_name(self):
+        'test to query by name'
+        recipe0 = create_recipe(user = self.user, title = 'aabbcc')
+        recipe1 = create_recipe(user = self.user, title = 'aaweacc')
+        recipe2 = create_recipe(user = self.user, title = 'bbccaqsd')
+
+        query = 'aa'
+        results = Recipe.objects.filter(title__icontains=query) # research better method
+
+        self.assertEqual(results.count(), 2)
 
 class ImageUploadTests(TestCase):
     def setUp(self):
