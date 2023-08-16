@@ -2,6 +2,7 @@ import uuid
 import os
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -63,6 +64,7 @@ class Recipe(models.Model):
     time_minutes = models.IntegerField()
     price = models.DecimalField(max_digits=5, decimal_places=2)
     link = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     tags = models.ManyToManyField(Tag)
     ingredients = models.ManyToManyField('Ingredient')
     image = models.ImageField(null=True, upload_to=recipe_image_file_path)

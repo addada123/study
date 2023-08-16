@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -358,6 +359,27 @@ class PrivateRecipeAPITests(TestCase):
         res = self.client.patch(url, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(recipe.ingredients.count(), 0)
+
+    def test_created_at_default_now(self):
+        '''test to catch created_date is equal to current time'''
+        recipe = create_recipe(user = self.user)
+        self.assertIsNotNone(recipe.created_at)
+        self.assertIsInstance(recipe.created_at, timezone.datetime)
+        self.assertAlmostEqual(recipe.created_at, timezone.now(), delta=timezone.timedelta(seconds=1))
+
+    def test_created_at_not_editable(self):
+        """
+        Test that the created_at field is not editable.
+        """
+        recipe = create_recipe(user = self.user)
+        original_created_at = recipe.created_at
+        new_created_at = original_created_at - timezone.timedelta(days=1)
+        patch_data = {"created_at": new_created_at}
+        res = self.client.patch(RECIPES_URL, patch_data, content_type="application/json")
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        recipe.refresh_from_db()
+        self.assertNotEqual(recipe.created_at, new_created_at)
+        self.assertEqual(recipe.created_at, original_created_at)
 
 class ImageUploadTests(TestCase):
     def setUp(self):
