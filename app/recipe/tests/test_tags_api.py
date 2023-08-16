@@ -63,7 +63,6 @@ class PrivateTagsAPITests(TestCase):
 
     def test_tags_update(self):
         tag = Tag.objects.create(user = self.user, name = 'Kek')
-
         payload = {
             'name': 'Tatli'
         }

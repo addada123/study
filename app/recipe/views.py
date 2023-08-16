@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import LimitOffsetPagination
 
 from core.models import (
     Recipe,
@@ -20,7 +21,7 @@ from core.models import (
     Ingredient
 )
 from recipe import serializers
-from django.core.paginator import Paginator
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -50,6 +51,8 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                             ):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = LimitOffsetPagination
+
 
     def get_queryset(self):
         assigned_only = bool(
@@ -62,13 +65,7 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
         queryset =  queryset.filter(
             user=self.request.user
         ).order_by('-name').distinct()
-
-
-        limit = int(self.request.query_params.get('limit', 10))  # Convert to integer
-        offset = int(self.request.query_params.get('offset', 0))  # Convert to integer
-        paginator = Paginator(queryset, per_page=limit)
-        page = paginator.get_page(offset // limit + 1)
-        return page
+        return queryset
 
 @extend_schema_view(
     list=extend_schema(
@@ -102,6 +99,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = LimitOffsetPagination
 
     def _params_to_ints(self, qs):
         return [int(str_id) for str_id in qs.split(',')]
@@ -141,6 +139,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TagViewSet(BaseRecipeAttrViewSet):
     serializer_class = serializers.TagSerializer
