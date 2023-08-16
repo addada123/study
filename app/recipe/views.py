@@ -73,6 +73,12 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
     list=extend_schema(
         parameters=[
             OpenApiParameter(
+                'title',
+                OpenApiTypes.STR,
+                description='Query by name',
+                required=False,
+            ),
+            OpenApiParameter(
                 'created_at',
                 OpenApiTypes.DATETIME,
                 description='Filter by creation date',
@@ -117,6 +123,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         tags = self.request.query_params.get('tags')
         ingredients = self.request.query_params.get('ingredients')
         created_at = self.request.query_params.get('created_at')
+        title = self.request.query_params.get('title')
 
         queryset = self.queryset
         if tags:
@@ -127,6 +134,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(ingredients__id__in=ingredient_ids)
         if created_at:
             queryset = queryset.filter(created_at=created_at)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
 
         return queryset.filter(
             user=self.request.user
