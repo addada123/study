@@ -23,8 +23,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link' ,'tags', 'ingredients']
-        read_only_fields = ['id']
+        fields = ['id', 'title', 'time_minutes', 'price', 'link' ,'tags', 'ingredients', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
     def _get_or_create_tags(self, tags, recipe):
         auth_user = self.context['request'].user
