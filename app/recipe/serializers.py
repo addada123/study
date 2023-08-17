@@ -1,10 +1,14 @@
 from rest_framework import serializers
+from rest_framework.fields import ImageField
+from rest_framework.exceptions import ValidationError
 from core.models import (
     Recipe,
     Tag,
     Ingredient,
     Like
 )
+
+
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
@@ -23,15 +27,30 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = ['user', 'recipe']
         read_only_fields = ['user']
 
+class LikeSerializerWithoutRequest(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['user']
+        read_only_fields = ['user']
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)
     ingredients = IngredientSerializer(many=True, required=False)
-    likes_count = LikeSerializer(many=True, required=False)
+    image = ImageField(required=True)
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags', 'ingredients', 'created_at', 'likes_count']
+        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags', 'ingredients', 'created_at', 'likes_count', 'image']
         read_only_fields = ['id', 'created_at', 'likes_count']
+
+    def validate_image(self, value):
+        """
+        Check the  uploaded image is in PNG.
+        """
+        if not value.name.lower().endswith('.png'):
+            raise ValidationError("Only PNG images are allowed.")
+        return value
 
     def get_likes_count(self, obj):
         return obj.likes_count.count()
@@ -60,7 +79,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         self._get_or_create_tags(tags, recipe)
         self._get_or_create_ingredients(ingredients, recipe)
-
         return recipe
 
     def update(self, instance, validated_data):
@@ -84,9 +102,3 @@ class RecipeDetailSerializer(RecipeSerializer):
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ["description"]
 
-class RecipeImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ['id', 'image']
-        read_only_fields = ['id']
-        extra_kwargs = {'image': {'required': 'True'}}

@@ -154,7 +154,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = serializer.save(user=self.request.user)
         return recipe
 
-    @action(methods=['POST'], detail=True, url_path='upload-image')
     def upload_image(self, request, pk=None):
         recipe = self.get_object()
         serializer = self.get_serializer(recipe, data=request.data)
