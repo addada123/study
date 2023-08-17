@@ -12,7 +12,7 @@ from rest_framework import (viewsets,
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.pagination import LimitOffsetPagination
 
 from core.models import (
@@ -115,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.RecipeDetailSerializer
     queryset = Recipe.objects.all()
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def _params_to_ints(self, qs):
         return [int(str_id) for str_id in qs.split(',')]
@@ -141,9 +141,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if title:
             queryset = queryset.filter(title__icontains=title)
 
-        return queryset.filter(
-            user=self.request.user
-        ).order_by('-id').distinct()
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":

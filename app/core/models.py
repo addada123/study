@@ -73,6 +73,22 @@ class Recipe(models.Model):
     def __str__(self):
         return self.title
 
+    def like_recipe(self, user):
+        like, created = Like.objects.get_or_create(recipe=self, user=user)
+        if created:
+            self.likes_count.add(like)
+
+    def unlike_recipe(self, user):
+        try:
+            like = self.likes_count.get(user=user)
+            self.likes_count.remove(like)
+            like.delete()
+        except Like.DoesNotExist:
+            pass
+
+    def get_total_likes(self):
+        return self.likes_count.count()
+
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
