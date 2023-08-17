@@ -2,7 +2,8 @@ from rest_framework import serializers
 from core.models import (
     Recipe,
     Tag,
-    Ingredient
+    Ingredient,
+    Like
 )
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,14 +17,24 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['user', 'recipe']
+        read_only_fields = ['user']
+
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many = True, required = False)
+    tags = TagSerializer(many=True, required=False)
     ingredients = IngredientSerializer(many=True, required=False)
+    likes_count = LikeSerializer(many=True, required=False)
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link' ,'tags', 'ingredients', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags', 'ingredients', 'created_at', 'likes_count']
+        read_only_fields = ['id', 'created_at', 'likes_count']
+
+    def get_likes_count(self, obj):
+        return obj.likes_count.count()
 
     def _get_or_create_tags(self, tags, recipe):
         auth_user = self.context['request'].user
@@ -66,6 +77,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
 
 class RecipeDetailSerializer(RecipeSerializer):
 

@@ -54,6 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     USERNAME_FIELD = 'email'
 
+
 class Recipe(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -66,6 +67,7 @@ class Recipe(models.Model):
     link = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     tags = models.ManyToManyField(Tag)
+    likes_count = models.ManyToManyField('Like', related_name='likes_count')
     ingredients = models.ManyToManyField('Ingredient')
     image = models.ImageField(null=True, upload_to=recipe_image_file_path)
     def __str__(self):
@@ -80,3 +82,11 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+class Like(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+

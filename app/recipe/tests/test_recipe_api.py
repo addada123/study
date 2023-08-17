@@ -16,7 +16,8 @@ from rest_framework.test import APIClient
 from core.models import (
     Recipe,
     Tag,
-    Ingredient
+    Ingredient,
+    Like
 )
 
 
@@ -411,6 +412,31 @@ class PrivateRecipeAPITests(TestCase):
 
         self.assertEqual(results.count(), 2)
 
+    def test_like_recipe(self):
+        recipe = create_recipe(user = self.user, title = 'test like')
+        initial_like_count = recipe.like_set.count()
+        recipe.like_recipe(self.user)
+        updated_like_count = recipe.like_set.count()
+        self.assertEqual(updated_like_count, initial_like_count + 1)
+
+    def test_unlike_recipe(self):
+        recipe = create_recipe(user = self.user, title = 'test like')
+        recipe.like_recipe(self.user)
+        initial_like_count = recipe.like_set.count()
+        recipe.like_set.filter(user=self.user).delete()
+        updated_like_count = recipe.like_set.count()
+        self.assertEqual(updated_like_count, initial_like_count - 1)
+
+    def test_like_count(self):
+        recipe = create_recipe(user = self.user, title = 'test like')
+        other_user = create_user(
+            email ='other@example.com',
+            password = 'password123',
+        )
+        self.assertEqual(recipe.get_total_likes(), 0)
+        recipe.like_recipe(self.user)
+        recipe.like_recipe(other_user)
+        self.assertEqual(recipe.get_total_likes(), 2)
 class ImageUploadTests(TestCase):
     def setUp(self):
         self.client = APIClient()
