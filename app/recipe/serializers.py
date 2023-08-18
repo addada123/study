@@ -1,9 +1,14 @@
 from rest_framework import serializers
+from rest_framework.fields import ImageField
+from rest_framework.exceptions import ValidationError
 from core.models import (
     Recipe,
     Tag,
-    Ingredient
+    Ingredient,
+    Like
 )
+
+
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
@@ -16,14 +21,39 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['user', 'recipe']
+        read_only_fields = ['user']
+
+class LikeSerializerWithoutRequest(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['user']
+        read_only_fields = ['user']
+
+
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many = True, required = False)
+    tags = TagSerializer(many=True, required=False)
     ingredients = IngredientSerializer(many=True, required=False)
+    image = ImageField(required=True)
 
     class Meta:
         model = Recipe
-        fields = ['id', 'title', 'time_minutes', 'price', 'link' ,'tags', 'ingredients', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'title', 'time_minutes', 'price', 'link', 'tags', 'ingredients', 'created_at', 'likes_count', 'image']
+        read_only_fields = ['id', 'created_at', 'likes_count']
+
+    def validate_image(self, value):
+        """
+        Check the  uploaded image is in PNG.
+        """
+        if not value.name.lower().endswith('.png'):
+            raise ValidationError("Only PNG images are allowed.")
+        return value
+
+    def get_likes_count(self, obj):
+        return obj.likes_count.count()
 
     def _get_or_create_tags(self, tags, recipe):
         auth_user = self.context['request'].user
@@ -49,7 +79,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         self._get_or_create_tags(tags, recipe)
         self._get_or_create_ingredients(ingredients, recipe)
-
         return recipe
 
     def update(self, instance, validated_data):
@@ -67,14 +96,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class RecipeDetailSerializer(RecipeSerializer):
 
     class Meta(RecipeSerializer.Meta):
         fields = RecipeSerializer.Meta.fields + ["description"]
 
-class RecipeImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ['id', 'image']
-        read_only_fields = ['id']
-        extra_kwargs = {'image': {'required': 'True'}}

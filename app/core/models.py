@@ -1,4 +1,5 @@
 import uuid
+from django.core.validators import FileExtensionValidator
 import os
 from django.conf import settings
 from django.db import models
@@ -54,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     USERNAME_FIELD = 'email'
 
+
 class Recipe(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -66,10 +68,28 @@ class Recipe(models.Model):
     link = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     tags = models.ManyToManyField(Tag)
+    likes_count = models.ManyToManyField('Like', related_name='likes_count')
     ingredients = models.ManyToManyField('Ingredient')
-    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
+    image = models.ImageField(upload_to=recipe_image_file_path,
+                              validators=[FileExtensionValidator(['png'])])
     def __str__(self):
         return self.title
+
+    def like_recipe(self, user):
+        like, created = Like.objects.get_or_create(recipe=self, user=user)
+        if created:
+            self.likes_count.add(like)
+
+    def unlike_recipe(self, user):
+        try:
+            like = self.likes_count.get(user=user)
+            self.likes_count.remove(like)
+            like.delete()
+        except Like.DoesNotExist:
+            pass
+
+    def get_total_likes(self):
+        return self.likes_count.count()
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
@@ -80,3 +100,11 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+class Like(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
