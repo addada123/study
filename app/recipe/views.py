@@ -11,7 +11,8 @@ from rest_framework import (viewsets,
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -52,7 +53,7 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                             mixins.ListModelMixin,
                             viewsets.GenericViewSet
                             ):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     pagination_class = LimitOffsetPagination
 
@@ -114,7 +115,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """View for manage recipe APIs."""
     serializer_class = serializers.RecipeDetailSerializer
     queryset = Recipe.objects.all()
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def _params_to_ints(self, qs):
@@ -177,7 +178,7 @@ class LikeViewSet(mixins.CreateModelMixin,
                   mixins.DestroyModelMixin,
                   viewsets.GenericViewSet
 ):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.LikeSerializer
     queryset = Like.objects.all()
