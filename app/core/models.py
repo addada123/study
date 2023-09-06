@@ -107,4 +107,3 @@ class Like(models.Model):
         on_delete=models.CASCADE,
     )
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-
