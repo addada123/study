@@ -6,7 +6,7 @@ from django.db.utils import OperationalError
 from django.test import SimpleTestCase
 
 @patch("core.management.commands.wait_for_db.Command.check")
-class CommandTest(SimpleTestCase):
+class TestCommands:
 
     def test_wait_for_db_ready(self, patched_check):
         patched_check.return_value = True
@@ -21,6 +21,5 @@ class CommandTest(SimpleTestCase):
             [OperationalError] * 3 + [True]
 
         call_command("wait_for_db")
-
-        self.assertEqual(patched_check.call_count, 6)
+        assert patched_check.call_count == 6
         patched_check.asser_called_with(databases=["default"])

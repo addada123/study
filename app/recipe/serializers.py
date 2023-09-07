@@ -37,7 +37,7 @@ class LikeSerializerWithoutRequest(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, required=False)
     ingredients = IngredientSerializer(many=True, required=False)
-    image = ImageField(required=True)
+    image = ImageField(required=False)
 
     class Meta:
         model = Recipe
