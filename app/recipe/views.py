@@ -96,18 +96,6 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                 OpenApiTypes.STR,
                 description='Comma separated list of ingredient IDs to filter',
             ),
-            OpenApiParameter(
-                'limit',
-                OpenApiTypes.INT,
-                description='Number of items per page.',
-                required=False
-            ),
-            OpenApiParameter(
-                'offset',
-                OpenApiTypes.INT,
-                description='Starting index for pagination.',
-                required=False
-            ),
         ]
     )
 )

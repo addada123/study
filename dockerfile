@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./pytest.ini /app
 COPY ./app /app
 WORKDIR /app
 EXPOSE 8000
@@ -29,6 +30,7 @@ RUN python -m venv /py && \
     mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \
     chmod -R 755 /vol
+
 
 ENV PATH="/py/bin:$PATH"
 

@@ -42,7 +42,7 @@ class RecipeFactory(DjangoModelFactory):
 
     @factory.post_generation
     def ingredients_and_tags_and_likes(self, create, extracted, **kwargs):
-        if not create:
+        if not create or not extracted:
             return
         for item in extracted:
             if isinstance(item, models.Ingredient):
@@ -50,7 +50,7 @@ class RecipeFactory(DjangoModelFactory):
             elif isinstance(item, models.Tag):
                 self.tags.add(item)
             elif isinstance(item, models.Like):
-                self.likes.add(item)
+                self.likes_count.add(item)
 
 
 class IngredientsFactory(DjangoModelFactory):
