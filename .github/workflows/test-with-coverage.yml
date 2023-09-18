@@ -29,7 +29,7 @@ jobs:
 
       - id: start-containers-and-run-tests
         name: Set up containers and run rests inside the web container
-        run: docker-compose -p ratio up --build --exit-code-from web
+        run: docker-compose -p ratio up --build --exit-code-from app
           
       - id: stop-containers
         name: Stop Docker Compose
