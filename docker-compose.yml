@@ -13,8 +13,6 @@ services:
       - ./app:/app
       - ./scripts:/scripts
     entrypoint: /scripts/${ENTRYPOINT:-"docker-entrypoint.sh"}
-    env_file:
-      - .env
     environment:
       - DB_HOST=db
       - DB_NAME=devdb
