@@ -5,10 +5,12 @@ on:
 
   push:
     branches:
-      - 'master' 
+      - 'master'
+      - 'eren' 
   pull_request:
     branches:
       - 'master' 
+      - 'eren'
 
 jobs:
   test:
