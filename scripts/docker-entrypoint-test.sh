@@ -8,6 +8,9 @@ directory="coverage_reports"
 
 echo "Setting up test environment..."
 
+echo "Waiting for db"
+python manage.py wait_for_db
+
 echo "Apply database migrations"
 python manage.py makemigrations
 python manage.py migrate
