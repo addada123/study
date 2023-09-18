@@ -1,14 +1,22 @@
-FROM python:3.9-alpine3.13
+FROM python:3.9-alpine3.13 as app
 LABEL maintainer="addada123"
 
 ENV PYTHONUNBUFFERED 1
 
+WORKDIR /app
+
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
-COPY ./pytest.ini /app
-COPY ./app /app
-WORKDIR /app
-EXPOSE 8000
+
+COPY ./scripts/docker-entrypoint.sh /docker-entrypoint.sh
+RUN sed -i 's/\r$//g' /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+COPY ./scripts/docker-entrypoint-test.sh /docker-entrypoint-test.sh
+RUN sed -i 's/\r$//g' /docker-entrypoint-test.sh
+RUN chmod +x /docker-entrypoint-test.sh
+
+
 
 ARG DEV=false
 RUN python -m venv /py && \

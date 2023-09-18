@@ -7,4 +7,5 @@ djangorestframework-simplejwt>=5.2.2,<5.3.0ip
 factory-boy>=3.3.0,<3.4.0
 pytest  
 pytest-django
+pytest-cov
 

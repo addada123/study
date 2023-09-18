@@ -1,0 +1,49 @@
+name: Django Tests in Docker
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - 'master' 
+  pull_request:
+    branches:
+      - 'master' 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      ENTRYPOINT: "docker-entrypoint-test.sh"
+
+    outputs:
+        output1: ${{ steps.start-containers-and-run-tests.outputs.test }}
+
+    steps:
+      - id: checkout
+        name: Checkout code
+        uses: actions/checkout@v3
+
+      - id: start-containers-and-run-tests
+        name: Set up containers and run rests inside the web container
+        run: docker-compose -p ratio up --build --exit-code-from web
+          
+      - id: stop-containers
+        name: Stop Docker Compose
+        run: docker-compose -f ./docker-compose.yml down
+
+      - id: upload-coverage-report
+        name: Upload coverage report to GitHub
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: ../coverage*/*coverage*
+
+
+
+      #- name: Wait for services to start
+       # run: |
+        #  while ! curl -s http://localhost:9092; do
+         #   sleep 1
+          #done

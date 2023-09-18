@@ -1,4 +1,6 @@
-
+coverage_reports
+.gitignore
+.vscode
 .DS_store
 
 # Byte-compiled / optimized / DLL files
